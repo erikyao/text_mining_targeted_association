@@ -157,6 +157,6 @@ def load_data(data_folder):
                 if o_id != line[2]:
                     res['object']['NCBIgene'] = o_id
                     res['object']['id'] = 'NCBIGene:' + o_id
-                res["_id"] = res['subject']['id'] + '-' + res['object']['id'] + '-' + str(res['association']['ngd'])
+                res["_id"] = res['subject']['id'] + '-' + res['object']['id'] + '-' + str(line[7])
                 # res["combos"] = [res['subject']['id'] + '-' + res['object']['id'], res['object']['id'] + '-' + res['subject']['id']]
                 yield res

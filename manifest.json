@@ -1,0 +1,25 @@
+{
+    "version": "0.1",
+    "requires": [
+        "biothings_client",
+        "obonet"
+    ],
+    "__metadata__": {
+        "license_url": "",
+        "licence": "CC BY 4.0",
+        "url": ""
+    },
+    "dumper": {
+        "data_url": [
+            "https://storage.googleapis.com/translator-tm-provider-knowledge-graphs/text-mined/current/text-mined.nodes.current.kgx.tsv.zip",
+            "https://storage.googleapis.com/translator-tm-provider-knowledge-graphs/text-mined/current/text-mined.edges.current.kgx.tsv.zip"
+        ],
+        "uncompress": true,
+        "release": "version:get_release",
+        "schedule": "0 0 * * 1"
+    },
+    "uploader": {
+        "parser": "parser:load_data",
+        "on_duplicates": "ignore"
+    }
+}

@@ -11,8 +11,8 @@
     },
     "dumper": {
         "data_url": [
-            "https://storage.googleapis.com/translator-tm-provider-knowledge-graphs/text-mined/current/text-mined.nodes.current.kgx.tsv.zip",
-            "https://storage.googleapis.com/translator-tm-provider-knowledge-graphs/text-mined/current/text-mined.edges.current.kgx.tsv.zip"
+            "https://storage.googleapis.com/translator-tm-provider-knowledge-graphs/text-mined/current/text-mined.nodes.current.kgx.tsv.gz",
+            "https://storage.googleapis.com/translator-tm-provider-knowledge-graphs/text-mined/current/text-mined.nodes.current.kgx.tsv.gz"
         ],
         "uncompress": true,
         "release": "version:get_release",

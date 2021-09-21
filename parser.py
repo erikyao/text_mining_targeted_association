@@ -1,162 +1,83 @@
-import obonet
-import re
 import os
 import csv
-import random
-from collections import defaultdict
-
-from biothings_client import get_client
-
-GENE_CLIENT = get_client('gene')
-graph = obonet.read_obo("http://purl.obolibrary.org/obo/pr.obo")
-pr_to_ncbigene_dict = {}
+import json
 
 
-def query_pr_to_symbol(pr):
-    if pr not in graph.nodes:
-        return
-    node_info = graph.nodes[pr]
-    if "synonym" in node_info:
-        for syn in node_info['synonym']:
-            if 'EXACT PRO-short-label' in syn: 
-                match = re.findall(r'\"(.+?)\"', syn)
-                if match and len(match) > 0:
-                    return match[0]
-    return
+def get_attribute_object(blob, atrribute_type_id) -> dict:
+    for obj in blob:
+        if obj['attribute_type_id'] == atrribute_type_id:
+            return obj
 
-def query_pr_to_uniprot(pr):
-    if pr not in graph.nodes:
-        return
-    node_info = graph.nodes[pr]
-    if "xref" in node_info:
-        for xref in node_info['xref']:
-            if 'UniProtKB:' in xref: 
-                return xref.split(':')[-1]
-    return
 
-def query_uniprot_to_ncbigene(uniprot_ids: list) -> dict:
-    """Use biothings_client.py to query uniprot ids and get back 'entrezgene' in mygene.info
-    
-    :param: uniprot_ids: list of uniprot ids
-    """
-    res = GENE_CLIENT.querymany(uniprot_ids, scopes='uniprot.Swiss-Prot', fields="entrezgene")
-    new_res = defaultdict(list)
-    for item in res:
-        if "notfound" not in item and "entrezgene" in item and item['query'] not in new_res:
-            new_res[item['query']].append(item['entrezgene'])
-    return new_res
+def get_attribute_list(blob, attribute_type_id) -> list:
+    object_list = []
+    for obj in blob:
+        if obj['attribute_type_id'] == attribute_type_id:
+            object_list.append(obj)
+    return object_list
 
-def query_symbol_to_ncbigene(symbols: list) -> dict:
-    """Use biothings_client.py to query gene symbols and get back 'entrezgene' in mygene.info
-    
-    :param: uniprot_ids: list of gene symbols
-    """
-    res = GENE_CLIENT.querymany(symbols, scopes='symbol', fields="entrezgene", species="human")
-    new_res = defaultdict(list)
-    for item in res:
-        if "notfound" not in item:
-            if "entrezgene" in item:
-                new_res[item['query']].append(item['entrezgene'])
-    return new_res
 
-def query_prs_to_ncbigenes(prs):
-    pr_uniprot_mapping = {}
-    pr_symbol_mapping = {}
-    pr_ncbigene_mapping = {}
-    for pr in prs:
-        if not pr.startswith("PR:0"):
-            uniprot = query_pr_to_uniprot(pr)
-            if uniprot:
-                pr_uniprot_mapping[pr] = uniprot
-            else:
-                print("pr {} failed to find mapping".format(pr))
-        else:
-            symbol = query_pr_to_symbol(pr)
-            if symbol:
-                pr_symbol_mapping[pr] = symbol
-            else:
-                print("pr {} failed to find mapping".format(pr))
-    symbol_ncbigene_mapping = query_symbol_to_ncbigene(list(pr_symbol_mapping.values()))
-    uniprot_ncbigene_mapping = query_uniprot_to_ncbigene(list(pr_uniprot_mapping.values()))
-    for pr in pr_uniprot_mapping:
-        if pr_uniprot_mapping[pr] in uniprot_ncbigene_mapping:
-            pr_ncbigene_mapping[pr] = uniprot_ncbigene_mapping[pr_uniprot_mapping[pr]]
-    for pr in pr_symbol_mapping:
-        if pr_symbol_mapping[pr] in symbol_ncbigene_mapping:
-            pr_ncbigene_mapping[pr] = symbol_ncbigene_mapping[pr_symbol_mapping[pr]]
-    return pr_ncbigene_mapping
+def get_evidence_list(supporting_studies) -> list:
+    evidence_list = []
+    for study in supporting_studies:
+        publication = get_attribute_object(study["attributes"], "biolink:supporting_document")["value"]
+        score = get_attribute_object(study["attributes"], "biolink:extraction_confidence_score")["value"]
+        sentence = get_attribute_object(study["attributes"], "biolink:supporting_text")["value"]
+        subject_span = get_attribute_object(study["attributes"], "biolink:subject_location_in_text")["value"]
+        object_span = get_attribute_object(study["attributes"], "biolink:object_location_in_text")["value"]
+        evidence = {
+            "publications": publication,
+            "score": score,
+            "sentence": sentence,
+            "subject_spans": subject_span,
+            "object_spans": object_span,
+            "provided_by": study["attribute_source"]
+        }
+        evidence_list.append(evidence)
+    return evidence_list
+
+
+def load_nodes(file_path) -> dict:
+    nodes_data = {}
+    with open(file_path, 'r') as file_handle:
+        reader = csv.reader(file_handle, delimiter='\t')
+        for row in reader:
+            nodes_data[row[0]] = (row[1], row[2])
+    return nodes_data
 
 
 def load_data(data_folder):
-    nodes_file_path = os.path.join(data_folder, "text-mined.nodes.current.kgx.tsv")
-    edges_file_path = os.path.join(data_folder, "text-mined.edges.current.kgx.tsv")
-    nodes_f = open(nodes_file_path)
-    edges_f = open(edges_file_path)
-    prs = set()
-    id_type_mapping = {}
-    evidence = {}
-    nodes_data = csv.reader(nodes_f, delimiter="\t")
-    edges_data = csv.reader(edges_f, delimiter="\t")
-    for line in nodes_data:
-        if line[0].startswith("PR"):
-            prs.add(line[0])
-        if line[2] == "biolink:GeneOrGeneProduct":
-            semantic_type = "Gene"
-        if line[2] == "biolink:InformationContentEntity":
-            evidence[line[0]] = {
-                "publications": line[3],
-                "score": line[4],
-                "sentence": line[5],
-                "subject_spans": line[6],
-                "relation_spans": line[7],
-                "object_spans": line[8],
-                "provided_by": line[9]
+    entity_dict = load_nodes(os.path.join(data_folder, "nodes.tsv"))
+    edges_file_path = os.path.join(data_folder, "edges.tsv")
+    with open(edges_file_path, 'r') as file_handle:
+        reader = csv.reader(file_handle, delimiter='\t')
+        for line in reader:
+            attributes_blob = json.loads(line[-1])
+            supporting_studies = get_attribute_list(attributes_blob, 'biolink:supporting_study_result')
+            evidences = get_evidence_list(supporting_studies)
+            subject_parts = line[0].split(':')
+            object_parts = line[2].split(':')
+            short_predicate = 'false'
+            if 'positively' in line[1]:
+                short_predicate = 'positive'
+            elif 'negatively' in line[1]:
+                short_predicate = 'negative'
+            yield {
+                "_id": f"{line[3]}-{short_predicate}",
+                "subject": {
+                    "id": line[0],
+                    subject_parts[0]: subject_parts[1],
+                    "type": entity_dict[line[0]][1].split(':')[-1]
+                },
+                "association": {
+                    "edge_label": line[1].split(':')[-1],
+                    "evidence_count": get_attribute_object(attributes_blob, "biolink:has_evidence_count")["value"],
+                    "evidence": evidences,
+                    "edge_attributes": json.loads(line[-1])
+                },
+                "object": {
+                    "id": line[2],
+                    object_parts[0]: object_parts[1],
+                    "type": entity_dict[line[2]][1].split(':')[-1]
+                },
             }
-        else:
-            semantic_type = line[2].split(':')[-1] if line[2].startswith("biolink:") else line[2]
-        id_type_mapping[line[0]] = semantic_type
-    pr_ncbigene_mapping = query_prs_to_ncbigenes(list(prs))
-    next(edges_data)
-    for line in edges_data:
-        subject_id = line[0]
-        object_id = line[2]
-        res = {"subject": {}, "object": {}, }
-        if subject_id.startswith("PR:") and subject_id in pr_ncbigene_mapping:
-            subject_id = res["subject"]["NCBIGene"] = pr_ncbigene_mapping[subject_id]
-        else:
-            subject_id = [subject_id]
-        if object_id.startswith("PR:") and object_id in pr_ncbigene_mapping:
-            object_id = res["object"]["NCBIGene"] = pr_ncbigene_mapping[object_id]
-        else:
-            object_id = [object_id]
-        evidence_ids = line[-1].split("|")
-        evidences = [evidence[item] for item in evidence_ids]
-        for s_id in subject_id:
-            for o_id in object_id:
-                res.update({
-                    "subject": {
-                        "id": s_id,
-                        line[0].split(':')[0]: line[0],
-                        "type": id_type_mapping[line[0]]
-                    },
-                    "association": {
-                        "edge_label": line[1].split(':')[-1],
-                        "relation": line[3],
-                        "evidence": evidences,
-                        "evidence_count": line[-2]
-                    },
-                    "object": {
-                        "id": o_id,
-                        line[2].split(':')[0]: line[2],
-                        "type": id_type_mapping[line[2]]
-                    }
-                })
-                if s_id != line[0]:
-                    res['subject']['NCBIGene'] = s_id
-                    res['subject']['id'] = 'NCBIGene:' + s_id
-                if o_id != line[2]:
-                    res['object']['NCBIgene'] = o_id
-                    res['object']['id'] = 'NCBIGene:' + o_id
-                res["_id"] = res['subject']['id'] + '-' + res['object']['id'] + '-' + str(line[7])
-                # res["combos"] = [res['subject']['id'] + '-' + res['object']['id'], res['object']['id'] + '-' + res['subject']['id']]
-                yield res

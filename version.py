@@ -4,7 +4,7 @@ def get_release(self):
     # "self" is a dumper instance, see:
     # https://github.com/biothings/biothings.api/blob/master/biothings/hub/dataload/dumper.py
     import requests
-    res = requests.get("https://storage.googleapis.com/translator-tm-provider-knowledge-graphs/text-mined/current/text-mined.nodes.current.kgx.tsv.gz")
+    res = requests.get("https://storage.googleapis.com/translator-text-workflow-dev-public/kgx/UniProt/nodes.tsv")
     try:
         last_modified = res.headers.get("Last-Modified", "1.0")
         return last_modified

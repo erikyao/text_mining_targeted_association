@@ -49,6 +49,8 @@ def load_nodes(file_path) -> dict:
 def load_data(data_folder):
     entity_dict = load_nodes(os.path.join(data_folder, "nodes.tsv"))
     edges_file_path = os.path.join(data_folder, "edges.tsv")
+    # this is a list of ID types where we want the prefix included
+    prefix_list = ['RHEA', 'GO', 'CHEBI', 'HP', 'MONDO', 'DOID', 'EFO', 'UBERON', 'MP', 'CL', 'MGI']
     with open(edges_file_path, 'r') as file_handle:
         reader = csv.reader(file_handle, delimiter='\t')
         for line in reader:
@@ -66,7 +68,7 @@ def load_data(data_folder):
                 "_id": f"{line[3]}-{short_predicate}",
                 "subject": {
                     "id": line[0],
-                    subject_parts[0]: subject_parts[1],
+                    subject_parts[0]: line[0] if subject_parts[0] in prefix_list else subject_parts[1],
                     "type": entity_dict[line[0]][1].split(':')[-1]
                 },
                 "association": {
@@ -77,7 +79,7 @@ def load_data(data_folder):
                 },
                 "object": {
                     "id": line[2],
-                    object_parts[0]: object_parts[1],
+                    object_parts[0]: line[2] if object_parts[0] in prefix_list else object_parts[1],
                     "type": entity_dict[line[2]][1].split(':')[-1]
                 },
             }

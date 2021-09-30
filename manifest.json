@@ -10,10 +10,10 @@
     },
     "dumper": {
         "data_url": [
-            "https://storage.googleapis.com/translator-text-workflow-dev-public/kgx/UniProt/edges.tsv",
-            "https://storage.googleapis.com/translator-text-workflow-dev-public/kgx/UniProt/nodes.tsv"
+            "https://storage.googleapis.com/translator-text-workflow-dev-public/kgx/UniProt/edges.tsv.gz",
+            "https://storage.googleapis.com/translator-text-workflow-dev-public/kgx/UniProt/nodes.tsv.gz"
         ],
-        "uncompress": false,
+        "uncompress": true,
         "release": "version:get_release",
         "schedule": "0 0 * * *"
     },

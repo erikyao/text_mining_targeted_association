@@ -2,6 +2,21 @@ import os
 import csv
 import json
 
+EXCLUDE_LIST = ['CHEBI:35222', 'CHEBI:23888', 'CHEBI:36080', 'PR:000003944', 'PR:000011336', 'CL:0000000',
+                'PR:000000001', 'HP:0045088', 'HP:0001259', 'HP:0041092', 'HP:0031796', 'HP:0011011', 'HP:0001056',
+                'HP:0011010', 'MONDO:0021141', 'MONDO:0021152', 'HP:0000005', 'HP:0000005', 'MONDO:0017169',
+                'MONDO:0024497', 'MONDO:0000605', 'HP:0040285', 'HP:0025304', 'HP:0030645', 'HP:0025279',
+                'HP:0003676', 'HP:0030649', 'HP:0012835', 'HP:0003674', 'HP:0020034', 'HP:0002019', 'HP:0040282',
+                'HP:0040279', 'HP:0040279', 'HP:0032322', 'HP:0030645', 'HP:0011009', 'HP:0012829', 'HP:0030645',
+                'HP:0031375', 'HP:0030650', 'HP:0011009', 'HP:0012824', 'HP:0012828', 'HP:0012828', 'HP:0025287',
+                'HP:0025145', 'HP:0003676', 'HP:0003676', 'HP:0030645', 'MONDO:0005070', 'HP:0002664', 'MONDO:0021178',
+                'MONDO:0021137', 'MONDO:0002254', 'MONDO:0021136', 'HP:0012838', 'HP:0003680', 'HP:0031915',
+                'HP:0012837', 'HP:0040282', 'HP:0040279', 'HP:0040279', 'HP:0012840', 'HP:0410291', 'HP:0012830',
+                'HP:0025275', 'HP:0012831', 'HP:0012831', 'HP:0030646', 'MONDO:0021137', 'HP:0040279', 'HP:0040282',
+                'HP:0040282', 'HP:0040279', 'HP:0040282', 'HP:0040282', 'HP:0003680', 'HP:0012838', 'HP:0012834',
+                'HP:0200034', 'HP:0012825', 'HP:0040283', 'HP:0012824', 'HP:0012828', 'HP:0012828', 'HP:0100754',
+                'HP:0032320', 'HP:0030212', 'HP:0012826', 'HP:0003680']
+
 
 def get_attribute_object(blob, atrribute_type_id) -> dict:
     for obj in blob:
@@ -54,6 +69,8 @@ def load_data(data_folder):
     with open(edges_file_path, 'r') as file_handle:
         reader = csv.reader(file_handle, delimiter='\t')
         for line in reader:
+            if line[0].upper() in EXCLUDE_LIST or line[2].upper() in EXCLUDE_LIST:
+                continue
             attributes_blob = json.loads(line[-1])
             supporting_studies = get_attribute_list(attributes_blob, 'biolink:supporting_study_result')
             evidences = get_evidence_list(supporting_studies)

@@ -92,7 +92,7 @@ def load_data(data_folder):
                     "edge_label": line[1].split(':')[-1],
                     "evidence_count": get_attribute_object(attributes_blob, "biolink:has_evidence_count")["value"],
                     "evidence": evidences,
-                    "edge_attributes": json.loads(line[-1])
+                    "edge_attributes": json.loads(line[-1], parse_float=str, parse_int=str)
                 },
                 "object": {
                     "id": line[2],

@@ -100,3 +100,153 @@ def load_data(data_folder):
                     "type": entity_dict[line[2]][1].split(':')[-1]
                 },
             }
+
+
+def targeted_mapping(cls):
+    return {
+        "association": {
+            "properties": {
+                "edge_label": {
+                    "normalizer": "keyword_lowercase_normalizer",
+                    "type": "keyword"
+                },
+                "evidence_count": {
+                    "type": "integer"
+                },
+                "evidence": {
+                    "properties": {
+                        "publications": {
+                            "normalizer": "keyword_lowercase_normalizer",
+                            "type": "keyword"
+                        },
+                        "score": {
+                            "type": "float"
+                        },
+                        "subject_spans": {
+                            "type": "text"
+                        },
+                        "object_spans": {
+                            "type": "text"
+                        },
+                        "provided_by": {
+                            "normalizer": "keyword_lowercase_normalizer",
+                            "type": "keyword"
+                        },
+                        "sentence": {
+                            "type": "text"
+                        }
+                    }
+                },
+                "edge_attributes": {
+                    "properties": {
+                        "attribute_type_id": {
+                            "normalizer": "keyword_lowercase_normalizer",
+                            "type": "keyword"
+                        },
+                        "value": {
+                            "normalizer": "keyword_lowercase_normalizer",
+                            "type": "keyword"
+                        },
+                        "value_type_id": {
+                            "normalizer": "keyword_lowercase_normalizer",
+                            "type": "keyword"
+                        },
+                        "attribute_source": {
+                            "normalizer": "keyword_lowercase_normalizer",
+                            "type": "keyword"
+                        },
+                        "attributes": {
+                            "properties": {
+                                "attribute_type_id": {
+                                    "normalizer": "keyword_lowercase_normalizer",
+                                    "type": "keyword"
+                                },
+                                "value_type_id": {
+                                    "normalizer": "keyword_lowercase_normalizer",
+                                    "type": "keyword"
+                                },
+                                "attribute_source": {
+                                    "normalizer": "keyword_lowercase_normalizer",
+                                    "type": "keyword"
+                                },
+                                "value_url": {
+                                    "normalizer": "keyword_lowercase_normalizer",
+                                    "type": "keyword"
+                                },
+                                "value": {
+                                    "normalizer": "keyword_lowercase_normalizer",
+                                    "type": "keyword"
+                                },
+                                "description": {
+                                    "type": "text"
+                                }
+                            }
+                        },
+                        "description": {
+                            "type": "text"
+                        }
+                    }
+                }
+            }
+        },
+        "object": {
+            "properties": {
+                "id": {
+                    "normalizer": "keyword_lowercase_normalizer",
+                    "type": "keyword"
+                },
+                "UniProtKB": {
+                    "normalizer": "keyword_lowercase_normalizer",
+                    "type": "keyword"
+                },
+                "type": {
+                    "normalizer": "keyword_lowercase_normalizer",
+                    "type": "keyword"
+                },
+                "MONDO": {
+                    "normalizer": "keyword_lowercase_normalizer",
+                    "type": "keyword"
+                },
+                "HP": {
+                    "normalizer": "keyword_lowercase_normalizer",
+                    "type": "keyword"
+                },
+                "DRUGBANK": {
+                    "normalizer": "keyword_lowercase_normalizer",
+                    "type": "keyword"
+                },
+                "CHEBI": {
+                    "normalizer": "keyword_lowercase_normalizer",
+                    "type": "keyword"
+                }
+            }
+        },
+        "subject": {
+            "properties": {
+                "id": {
+                    "normalizer": "keyword_lowercase_normalizer",
+                    "type": "keyword"
+                },
+                "DRUGBANK": {
+                    "normalizer": "keyword_lowercase_normalizer",
+                    "type": "keyword"
+                },
+                "type": {
+                    "normalizer": "keyword_lowercase_normalizer",
+                    "type": "keyword"
+                },
+                "UniProtKB": {
+                    "normalizer": "keyword_lowercase_normalizer",
+                    "type": "keyword"
+                },
+                "CHEBI": {
+                    "normalizer": "keyword_lowercase_normalizer",
+                    "type": "keyword"
+                },
+                "MONDO": {
+                    "normalizer": "keyword_lowercase_normalizer",
+                    "type": "keyword"
+                }
+            }
+        }
+    }

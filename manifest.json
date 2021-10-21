@@ -19,6 +19,7 @@
     },
     "uploader": {
         "parser": "parser:load_data",
-        "on_duplicates": "ignore"
+        "on_duplicates": "ignore",
+        "mapping": "parser:targeted_mapping"
     }
 }

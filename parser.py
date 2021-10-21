@@ -239,6 +239,10 @@ def targeted_mapping(cls):
                     "normalizer": "keyword_lowercase_normalizer",
                     "type": "keyword"
                 },
+                "HP": {
+                    "normalizer": "keyword_lowercase_normalizer",
+                    "type": "keyword"
+                },
                 "CHEBI": {
                     "normalizer": "keyword_lowercase_normalizer",
                     "type": "keyword"

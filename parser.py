@@ -40,7 +40,7 @@ def get_evidence_list(supporting_studies) -> list:
         sentence = get_attribute_object(study["attributes"], "biolink:supporting_text")["value"]
         subject_span = get_attribute_object(study["attributes"], "biolink:subject_location_in_text")["value"]
         object_span = get_attribute_object(study["attributes"], "biolink:object_location_in_text")["value"]
-        agreement = get_attribute_object(study["attributes"], "biolink:agrees_with_data_source")["value"]
+        agreement = get_attribute_object(study["attributes"], "biolink:agrees_with_data_source")
         evidence = {
             "publications": publication,
             "score": score,
@@ -50,7 +50,7 @@ def get_evidence_list(supporting_studies) -> list:
             "provided_by": study["attribute_source"]
         }
         if agreement:
-            evidence["agrees_with"] = agreement
+            evidence["agrees_with"] = agreement["value"]
         evidence_list.append(evidence)
     return evidence_list
 
@@ -95,7 +95,7 @@ def load_data(data_folder):
                     "edge_label": line[1].split(':')[-1],
                     "evidence_count": get_attribute_object(attributes_blob, "biolink:has_evidence_count")["value"],
                     "evidence": evidences,
-                    "edge_attributes": json.loads(line[-1], parse_float=str, parse_int=str)
+                    "edge_attributes": json.loads(line[-1])
                 },
                 "object": {
                     "id": line[2],
@@ -151,8 +151,7 @@ def targeted_mapping(cls):
                             "type": "keyword"
                         },
                         "value": {
-                            "normalizer": "keyword_lowercase_normalizer",
-                            "type": "keyword"
+                            "index": False
                         },
                         "value_type_id": {
                             "normalizer": "keyword_lowercase_normalizer",

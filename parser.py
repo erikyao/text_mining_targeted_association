@@ -40,6 +40,7 @@ def get_evidence_list(supporting_studies) -> list:
         sentence = get_attribute_object(study["attributes"], "biolink:supporting_text")["value"]
         subject_span = get_attribute_object(study["attributes"], "biolink:subject_location_in_text")["value"]
         object_span = get_attribute_object(study["attributes"], "biolink:object_location_in_text")["value"]
+        agreement = get_attribute_object(study["attributes"], "biolink:agrees_with_data_source")["value"]
         evidence = {
             "publications": publication,
             "score": score,
@@ -48,6 +49,8 @@ def get_evidence_list(supporting_studies) -> list:
             "object_spans": object_span,
             "provided_by": study["attribute_source"]
         }
+        if agreement:
+            evidence["agrees_with"] = agreement
         evidence_list.append(evidence)
     return evidence_list
 
@@ -134,6 +137,10 @@ def targeted_mapping(cls):
                         },
                         "sentence": {
                             "type": "text"
+                        },
+                        "agrees_with": {
+                            "normalizer": "keyword_lowercase_normalizer",
+                            "type": "keyword"
                         }
                     }
                 },

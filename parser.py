@@ -151,6 +151,7 @@ def targeted_mapping(cls):
                             "type": "keyword"
                         },
                         "value": {
+                            "type": "text",
                             "index": False
                         },
                         "value_type_id": {
@@ -180,6 +181,7 @@ def targeted_mapping(cls):
                                     "type": "keyword"
                                 },
                                 "value": {
+                                    "type": "text",
                                     "index": False
                                 },
                                 "description": {

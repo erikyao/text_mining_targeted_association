@@ -180,8 +180,7 @@ def targeted_mapping(cls):
                                     "type": "keyword"
                                 },
                                 "value": {
-                                    "normalizer": "keyword_lowercase_normalizer",
-                                    "type": "keyword"
+                                    "index": False
                                 },
                                 "description": {
                                     "type": "text"
